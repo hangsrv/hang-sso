@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+sso:
+  server:
+    url: localhost:8080
+    type: local
+  remote:
+    port: 9090
+
+spring:
+  # thymeleaf配置
+  thymeleaf:
+    servlet:
+      content-type: text/html
+    enabled: true
+    encoding: utf-8
+    mode: HTML
+    prefix: classpath:/templates/
+    suffix: .html

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>hello lp</title>
+</head>
+<body>
+<h1>login success!</h1>
+<ul>
+    <li th:text="'用户id：' + ${userInfo.userId}"></li>
+    <li th:text="'用户角色：'+${userInfo.role}"></li>
+    <li th:text="'用户姓名：'+${userInfo.username}"></li>
+    <li th:text="'用户密码：'+${userInfo.password}"></li>
+</ul>
+</body>
+</html>

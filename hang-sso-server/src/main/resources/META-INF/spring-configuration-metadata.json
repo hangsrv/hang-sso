@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "sso.server.manger",
+      "type": "java.lang.String",
+      "description": "Description for sso.server.type."
+    },
+    {
+      "name": "sso.server.url",
+      "type": "java.lang.String",
+      "description": "Description for sso.server.url."
+    },
+    {
+      "name": "sso.remote.port",
+      "type": "java.lang.String",
+      "description": "Description for sso.remote.port."
+    }
+  ]
+}
