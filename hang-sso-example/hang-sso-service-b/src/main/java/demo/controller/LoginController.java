@@ -1,4 +1,4 @@
-package com.hang.sso.demo.controller;
+package demo.controller;
 
 import com.hang.sso.client.config.LogoutConfig;
 import com.hang.sso.client.constant.Const;
@@ -24,7 +24,7 @@ public class LoginController {
     @GetMapping("/logout")
     public String ssoLogout(HttpServletRequest request, HttpServletResponse response) {
         return ReturnUtils.getLogoutUrl(request, response,
-                new LogoutConfig("http://localhost:8080", "http://localhost:8081/web/index"));
+                new LogoutConfig("http://localhost:8080", "http://localhost:8082/web/index"));
     }
 
 }

@@ -9,7 +9,6 @@ import com.hang.sso.server.model.User;
 import com.hang.sso.server.service.UserService;
 import com.hang.sso.server.util.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -32,14 +31,16 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
-    @Value("${sso.remote.port}")
-    private Integer remotePort;
-
     @GetMapping("/toLogin")
     public String doLogin(
             @RequestParam(Const.REDIRECT_URI) String redirectUri,
             @RequestParam(value = Const.ST, required = false) String st,
             HttpServletRequest request, HttpServletResponse response, Model model) throws UnsupportedEncodingException {
+        // 校验token
+        if (checkToken(request, response)) {
+            return getRedirect(redirectUri);
+        }
+        // 校验code
         if (StringUtils.hasLength(st) && checkCode(st, request, response)) {
             return getRedirect(redirectUri);
         }
@@ -55,14 +56,14 @@ public class LoginController {
             HttpServletRequest request, HttpServletResponse response, Model model) throws UnsupportedEncodingException {
         if (!StringUtils.hasLength(redirectUri)) {
             model.addAttribute("errmsg", "页面丢失，请返回重新原页面访问！");
-            return "login";
+            return "forward:/sso/toLogin";
         }
         model.addAttribute(Const.REDIRECT_URI, redirectUri);
 
         Result<User> loginResult = userService.login(username, password);
         if (!loginResult.isSuccess()) {
             model.addAttribute("errmsg", loginResult.getMessage());
-            return "login";
+            return "forward:/sso/toLogin";
         }
 
         String code = codeManager.create(loginResult.getData());
@@ -74,13 +75,22 @@ public class LoginController {
     public String refresh(
             @RequestParam(value = Const.LOGOUT_URL, required = false) String logoutUrl,
             HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+        return checkToken(logoutUrl, request, response) ? Const.OK : Const.ERR;
+    }
+
+    private boolean checkToken(String logoutUrl, HttpServletRequest request, HttpServletResponse response) {
         String token = CookieUtils.getCookie(request, Const.TOKEN);
-        if (StringUtils.hasLength(logoutUrl) && sessionManager.verification(token, logoutUrl)) {
-            return Const.OK;
-        } else if (sessionManager.verification(token)) {
-            return Const.OK;
+        if (StringUtils.hasLength(logoutUrl) && sessionManager.verification(request, response, token, logoutUrl)) {
+            return true;
+        } else if (sessionManager.verification(request, response, token)) {
+            return true;
         }
-        return Const.ERR;
+        return false;
+    }
+
+    private boolean checkToken(HttpServletRequest request, HttpServletResponse response) {
+
+        return checkToken(null, request, response);
     }
 
     @GetMapping("/logout")
@@ -88,11 +98,11 @@ public class LoginController {
             @RequestParam(Const.REDIRECT_URI) String redirectUri,
             @RequestParam(Const.TOKEN) String token,
             Model model, HttpServletRequest request, HttpServletResponse response) {
-        if (sessionManager.verification(token)) {
+        if (sessionManager.verification(request, response, token)) {
             sessionManager.remove(token);
         }
         model.addAttribute(Const.REDIRECT_URI, redirectUri);
-        return "login";
+        return "forward:/sso/toLogin";
     }
 
     private boolean checkCode(String st,

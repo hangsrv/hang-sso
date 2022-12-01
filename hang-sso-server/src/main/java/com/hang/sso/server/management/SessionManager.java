@@ -2,6 +2,9 @@ package com.hang.sso.server.management;
 
 import com.hang.sso.server.model.User;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /***
  * 会话管理
  */
@@ -25,11 +28,11 @@ public interface SessionManager {
     /***
      * 验证
      */
-    default public boolean verification(String token) {
+    default public boolean verification(HttpServletRequest request, HttpServletResponse response, String token) {
         return false;
     }
 
-    default public boolean verification(String token, String logoutUrl) {
+    default public boolean verification(HttpServletRequest request, HttpServletResponse response, String token, String logoutUrl) {
         return false;
     }
 }

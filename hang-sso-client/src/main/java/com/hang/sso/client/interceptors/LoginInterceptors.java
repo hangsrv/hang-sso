@@ -21,7 +21,7 @@ public class LoginInterceptors extends ClientInterceptors {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 检查本地 session
-        if (checkLocalSession(request, ssoConfig.getSsoServer())) {
+        if (checkLocalSession(request)) {
             return true;
         }
 

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SsoConfig {
+public class LogoutConfig {
     private String ssoServer;
-    private String logoutUrl;
+    private String indexUrl;
 }

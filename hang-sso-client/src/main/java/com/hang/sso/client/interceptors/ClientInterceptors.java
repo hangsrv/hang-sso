@@ -23,33 +23,37 @@ public abstract class ClientInterceptors implements HandlerInterceptor {
 
     protected RestTemplate restTemplate;
 
-    protected boolean checkLocalSession(HttpServletRequest request, String ssoServer) {
-        String tokenSession = (String) request.getSession().getAttribute(Const.SESSION_NAME);
-        String tokenCookie = CookieUtils.getCookie(request, Const.SESSION_NAME);
+    protected boolean checkLocalSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            session = request.getSession();
+        }
+        String tokenSession = SessionManager.getTokenBySessionId(session.getId());
+        String tokenCookie = CookieUtils.getCookie(request, Const.TOKEN);
+        if (StringUtils.isEmpty(tokenSession) && StringUtils.isNotEmpty(tokenCookie)) {
+            if (SessionManager.removeSessionByToken(tokenCookie)) {
+                SessionManager.addSession(tokenCookie, session);
+                tokenSession = tokenCookie;
+            }
+        }
+
         if (StringUtils.isNotEmpty(tokenSession) && tokenSession.equals(tokenCookie)) {
             // 刷新本地会话
             request.getSession().setMaxInactiveInterval(Const.TOKEN_EXPIRE);
-            // 刷新全局会话
-            String resp = getRefreshRes(ssoServer, tokenSession);
-
-            if (Const.OK.equals(resp)) {
-                return true;
-            } else {
-                request.getSession().invalidate();
-            }
+            return true;
         }
         return false;
     }
 
     protected boolean checkToken(HttpServletRequest request, String ssoServer, String logoutUrl) {
-        String tokenCookie = CookieUtils.getCookie(request, Const.SESSION_NAME);
+        String tokenCookie = CookieUtils.getCookie(request, Const.TOKEN);
         if (StringUtils.isNotEmpty(tokenCookie)) {
             // cookie校验
             String resp = getRefreshRes(ssoServer, tokenCookie, logoutUrl);
             if (Const.OK.equals(resp)) {
                 HttpSession session = request.getSession();
                 session.setMaxInactiveInterval(Const.TOKEN_EXPIRE);
-                session.setAttribute(Const.SESSION_NAME, tokenCookie);
+                session.setAttribute(Const.TOKEN, tokenCookie);
                 SessionManager.addSession(tokenCookie, session);
                 return true;
             }
@@ -63,7 +67,7 @@ public abstract class ClientInterceptors implements HandlerInterceptor {
             url += "?logoutUrl=" + logoutUrl;
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("cookie", Const.SESSION_NAME + "=" + tokenCookie);
+        httpHeaders.set("cookie", Const.TOKEN + "=" + tokenCookie);
         HttpEntity<String> httpEntity = new HttpEntity<>(httpHeaders);
         return restTemplate.exchange(
                 url,

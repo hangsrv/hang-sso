@@ -1,5 +1,6 @@
 package com.hang.sso.server.util;
 
+import com.hang.sso.server.constant.Const;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
@@ -31,10 +32,8 @@ public class CookieUtils {
     public static void addCookie(HttpServletRequest request, HttpServletResponse response, String name, String value, String path) {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath(path);
-        if ("https".equals(request.getScheme())) {
-            cookie.setSecure(true);
-        }
         cookie.setHttpOnly(true);
+        cookie.setMaxAge(Const.COOKIE_EXPIRE);
         response.addCookie(cookie);
     }
 
@@ -46,5 +45,12 @@ public class CookieUtils {
         cookie.setPath(path);
         cookie.setMaxAge(-1);
         response.addCookie(cookie);
+    }
+
+    public static void refreshCookie(HttpServletRequest request, HttpServletResponse response, String name, String path) {
+        String cookie = getCookie(request, name);
+        if (StringUtils.hasLength(cookie)) {
+            addCookie(request, response, name, cookie, path);
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.hang.sso.server.constant.Const;
 import com.hang.sso.server.management.SessionManager;
 import com.hang.sso.server.model.AccessToken;
 import com.hang.sso.server.model.User;
+import com.hang.sso.server.util.CookieUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
@@ -33,7 +36,7 @@ public class LocalSessionManager implements SessionManager {
     public synchronized String create(User user) {
         TOKEN_MAP.forEach((token, accessToken) -> {
             if (accessToken.getUser().getUserId().equals(user.getUserId())) {
-                TOKEN_MAP.remove(token);
+                remove(token);
             }
         });
         String token = UUID.randomUUID().toString();
@@ -67,12 +70,12 @@ public class LocalSessionManager implements SessionManager {
     }
 
     @Override
-    public boolean verification(String token) {
-        return verification(token, null);
+    public boolean verification(HttpServletRequest request, HttpServletResponse response, String token) {
+        return verification(request, response, token, null);
     }
 
     @Override
-    public boolean verification(String token, String logoutUrl) {
+    public boolean verification(HttpServletRequest request, HttpServletResponse response, String token, String logoutUrl) {
         if (!StringUtils.hasLength(token)) {
             return false;
         }
@@ -86,7 +89,8 @@ public class LocalSessionManager implements SessionManager {
                 v.getLogoutUrl().add(url.toString());
             }
             v.setExpireTime(System.currentTimeMillis() + Const.TOKEN_EXPIRE);
-            log.info("凭证已刷新, token:{}", token);
+            CookieUtils.refreshCookie(request, response, Const.TOKEN, "/");
+            log.info("凭证已刷新, token:{}, logoutUrl:{}", token, logoutUrl);
             return v;
         });
         return accessToken != null && System.currentTimeMillis() < accessToken.getExpireTime();
