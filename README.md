@@ -1,4 +1,4 @@
-# 单点登录
+# 单点登录简介
 
 分布式session：同一个网站，部署多台服务器，通过redis做统一会话存储
 
@@ -6,16 +6,28 @@
 
 TGT：Ticket Granting Ticket
 
-- TGT是为用户签发的Ticket，是验证用户登陆成功的唯一标识，封装了TGC以及用户信息
+- 全局会话令牌token
 
 TGC：Ticket Granting Cookie
 
-- TGC是这个session的唯一标识，可以认为是TGT的key
+- 会话cookie
 
 ST：Service Ticket（临时票据）
 
-- 用户在访问某一服务时提供的ticket
+- 授权码code
+
+# 单点登录流程
+
+## 单点登录
+
+![](img/login.jpg)
+
+## 单点退出
+
+![](img/logout.jpg)
 
 # 测试
 
-http://localhost:8080/sso/toLogin?redirectUri=http://localhost:8080/sso/toLogin
+demo-a: http://localhost:8081/web/index
+
+demo-b: http://localhost:8082/web/index
