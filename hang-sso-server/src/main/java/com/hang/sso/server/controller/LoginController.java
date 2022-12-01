@@ -84,9 +84,10 @@ public class LoginController {
     }
 
     @GetMapping("/logout")
-    public String logout(Model model, HttpServletRequest request, HttpServletResponse response) {
-        String token = (String) request.getAttribute(Const.TOKEN);
-        String redirectUri = (String) request.getAttribute(Const.REDIRECT_URI);
+    public String logout(
+            @RequestParam(Const.REDIRECT_URI) String redirectUri,
+            @RequestParam(Const.TOKEN) String token,
+            Model model, HttpServletRequest request, HttpServletResponse response) {
         if (sessionManager.verification(token)) {
             sessionManager.remove(token);
         }

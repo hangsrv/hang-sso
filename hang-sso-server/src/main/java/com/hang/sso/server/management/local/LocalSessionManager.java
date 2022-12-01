@@ -48,8 +48,8 @@ public class LocalSessionManager implements SessionManager {
         AccessToken remove = TOKEN_MAP.remove(token);
         log.info("凭证已删除, token:{}", token);
         for (String logoutUrl : remove.getLogoutUrl()) {
-            log.info("局部会话已删除, logoutUrl:{}", logoutUrl);
             restTemplate.getForObject(logoutUrl, String.class);
+            log.info("局部会话已删除, logoutUrl:{}", logoutUrl);
         }
 
     }
@@ -78,7 +78,12 @@ public class LocalSessionManager implements SessionManager {
         }
         AccessToken accessToken = TOKEN_MAP.computeIfPresent(token, (k, v) -> {
             if (StringUtils.hasLength(logoutUrl)) {
-                v.getLogoutUrl().add(logoutUrl);
+                StringBuilder url = new StringBuilder(logoutUrl);
+                url.append("?")
+                        .append(Const.TOKEN)
+                        .append("=")
+                        .append(token);
+                v.getLogoutUrl().add(url.toString());
             }
             v.setExpireTime(System.currentTimeMillis() + Const.TOKEN_EXPIRE);
             log.info("凭证已刷新, token:{}", token);

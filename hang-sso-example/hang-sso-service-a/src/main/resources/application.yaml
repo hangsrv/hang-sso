@@ -1,0 +1,19 @@
+server:
+  port: 8081
+spring:
+  # thymeleaf配置
+  thymeleaf:
+    servlet:
+      content-type: text/html
+    enabled: true
+    encoding: utf-8
+    mode: HTML
+    prefix: classpath:/templates/
+    suffix: .html
+  web:
+    resources:
+      static-locations: classpath:/static/
+      chain:
+        cache: true
+        enabled: true
+      add-mappings: true
