@@ -1,16 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>hello lp</title>
 </head>
 <body>
 <h1>login success!</h1>
-<ul>
-    <li th:text="'用户id：' + ${userInfo.userId}"></li>
-    <li th:text="'用户角色：'+${userInfo.role}"></li>
-    <li th:text="'用户姓名：'+${userInfo.username}"></li>
-    <li th:text="'用户密码：'+${userInfo.password}"></li>
-</ul>
+<form action="/sso/logout" method="get">
+    <input type="submit" value="单点退出"/>
+</form>
 </body>
 </html>

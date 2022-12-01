@@ -18,3 +18,10 @@ spring:
     mode: HTML
     prefix: classpath:/templates/
     suffix: .html
+  web:
+    resources:
+      static-locations: classpath:/static/
+      chain:
+        cache: true
+        enabled: true
+      add-mappings: true
