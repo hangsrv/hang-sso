@@ -13,6 +13,7 @@ public final class SessionManager {
     }
 
     public static synchronized void removeSessionByToken(final String accessToken) {
-        tokenSessionMap.remove(accessToken);
+        HttpSession httpSession = tokenSessionMap.remove(accessToken);
+        httpSession.invalidate();
     }
 }
